@@ -1,0 +1,61 @@
+name: ENC-RUNNER
+'on':
+  push:
+    branches:
+      - server
+jobs:
+  download:
+    runs-on: ubuntu-latest
+    container:
+      image: docker.io/amandaa00/git-atc:latest
+    steps:
+      - name: Cache files
+        id: cache-files
+        uses: actions/cache@v3
+        with:
+          path: /app
+          key: ${{ github.sha }}
+      - name: Run script
+        run: >-
+          cd /app
+
+          python3 download.py
+          ZnVjawZXlKUFYwNUZVaUk2SWtwaFkyczROelkzSWl3aVVrVlFUeUk2SWxKbGNHd2lMQ0pVUjE5QlVFbGZTVVFpT2lJeE5qVTBOakkzTUNJc0lsUkhYMEZRU1Y5SVFWTklJam9pTVdVeFpXWXhZbUppTm1VNFl6WmlZemt3TURJd04yTmhOV0V4TVdObU5tSWlMQ0pVUjE5Q1QxUmZWRTlMUlU0aU9pSTFNamd5T1RjME56WTFPa0ZCUjBoT2FrSkRjVko1ZG5oblZWTTViM2swU0ZSSFEzUTFRa05xYzJRdFNtSnpJaXdpUmtsTVJTSTZOakl4TENKR1NVeEZYMDVCVFVVaU9pSkNWQ0JUTVVVeklGZHBibTVwYm1jZ1ZHbHRaUzV0YTNZaUxDSkpSQ0k2SWxkcGJsOW1aR1V6WXoweUlpd2lRMDFFSWpvaVNXMWFiV0pZUW14YWVVRjBZVk5DTjJGWE5XWmFiV3h6V2xnd1oweFhUVFprYVVKellWZEtlbVJ1VW1oa2FrVm5URmhOWjAxVVNUUk5TR2N6VFdwQloweFlRbkJsUmpsdFlsaFJaMlZZVmpKT1JFbDNZME5CZEZrelNtMUpSRkV5U1VNeGQyTnRWbnBhV0ZGblRtbEJkRmw2Y0doSlIzaHdXVzA1ZDJSWVRXZE1WMFpxU1VSRloweFlXbWxqYVVGNVNVaDBkbU5HT1cxaFYzaHNabE5CZEdWVFNUMGlmUT09
+  encode:
+    runs-on: ubuntu-latest
+    needs: download
+    container:
+      image: docker.io/amandaa00/git-atc:latest
+    steps:
+      - name: Cache files
+        id: cache-files
+        uses: actions/cache@v3
+        with:
+          path: /app
+          key: ${{ github.sha }}
+      - name: Run script
+        run: |
+          cd /app
+          python3 encode.py
+      - name: Cache files after encode
+        id: cache-files-encode
+        uses: actions/cache@v3
+        with:
+          path: /app
+          key: ${{ github.sha }}-1
+  upload:
+    runs-on: ubuntu-latest
+    needs: encode
+    container:
+      image: docker.io/amandaa00/git-atc:latest
+    steps:
+      - name: Cache files
+        id: cache-files
+        uses: actions/cache@v3
+        with:
+          path: /app
+          key: ${{ github.sha }}-1
+      - name: Run script
+        run: |
+          cd /app
+          python3 upload.py
